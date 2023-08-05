@@ -1,0 +1,148 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.nav {
+  width: 100vw;
+  height: 10vh;
+  background-color: #1F3B4D;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+#grid {
+  display: grid;
+  grid-template-columns: repeat(48, 30px);
+  grid-template-rows: repeat(18, 30px);
+  gap: 1px;
+  background-color: #f2f2f2;
+}
+
+.cell {
+  width: 30px;
+  height: 30px;
+  background-color: #fff;
+  border: 1px solid #87d8f3;
+  transition: background-color 0.2s ease;
+}
+
+.start {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+}
+
+.end {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.wall {
+  background-color: #000;
+}
+
+.visited {
+  background-color: #4895c2;
+}
+
+.shortest-path {
+  background-color: #ffff00;
+}
+
+.buttons {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.buttons button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  background-color: #87d8f3;
+  color: #fff;
+  transition: background-color 0.2s ease;
+}
+
+.buttons button:hover {
+  background-color: #1F3B4D;
+}
+
+.nav select {
+  padding: 8px;
+  border: 1px solid #87d8f3;
+  border-radius: 5px;
+  background-color: #fff;
+  color: #1F3B4D;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.nav select:hover {
+  background-color: #f2f2f2;
+}
+
+.nav button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  background-color: #1F3B4D;
+  color: #fff;
+  transition: background-color 0.2s ease;
+}
+
+.nav button:hover {
+  background-color: #87d8f3;
+}
+.middle{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 3vh 0;
+}
+.message{
+  text-align: center;
+  width: 50%;
+  font-family: 'Edu SA Beginner', cursive;
+  font-family: 'Montserrat', sans-serif;
+
+font-size: 2rem;
+}
+
+.defs{
+  margin-right: 30%;
+  position: absolute;
+  left: 30px;
+  top: 100px;
+}
+
+#algo-select {
+    /* Your desired color change */
+    background-color: #1F3B4D;
+    /* You can also change other properties like text color */
+    color: white;
+    /* Add any other styles you want when hovering over the select element */
+}
+
+
+#ani-speed{
+   background-color: #1F3B4D;
+    /* You can also change other properties like text color */
+    color: white;
+    /* Add any other s*/
+}

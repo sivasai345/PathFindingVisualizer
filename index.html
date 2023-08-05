@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Pathfinding Visualizer</title>
+  <link rel="stylesheet" type="text/css" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Edu+SA+Beginner:wght@700&family=Montserrat:wght@100;400;900&display=swap"
+    rel="stylesheet">
+
+</head>
+
+<body>
+  <div class="container">
+    <div class="nav">
+      <select name="pets" id="algo-select">
+        <option disabled selected value="">Algorithms</option>
+        <option value="BFS">BFS</option>
+        <option value="DFS">DFS</option>
+        <!-- <option value="dijkstr">Dijkstra</option> -->
+        <option value="biBFS">Bidirectional BFS</option>
+        <option value="astar">A*</option>
+      </select>
+      <select name="animation-speed" id="ani-speed">
+        <option value="0.5">Animation speed: Slow</option>
+        <option value="0.43">Animation speed:Normal</option>
+        <option value="0.1">Animation speed: Fast</option>
+  
+      </select>
+      <button id="runButton">Visualize</button>
+      <button id="resetButton">Clear</button>
+      <button id="RandomWalls">Generate RandomWalls</button>
+      <!-- <button id="generateRandomMaze">Generate Maze</button> -->
+    </div>
+    <div class="middle">
+      <div class="defs">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;start node <i class="fa-solid fa-angles-right"></i>
+        &nbsp;&nbsp;&nbsp;&nbsp;end node
+        <i
+          class="fa-regular fa-circle-dot fa-beat"></i> </div>
+      <div class="message" id="message">Select Start Cell and End Cell</div>
+    </div>
+    <div>
+      <div id="grid"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script src="algo.js"></script>
+</body>
+
+</html>
