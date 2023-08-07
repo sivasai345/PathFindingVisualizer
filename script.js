@@ -1,4 +1,3 @@
-
 // Constants for grid dimensions
 const ROWS = 18;
 const COLS = 48;
@@ -29,7 +28,6 @@ function initializeGrid() {
   }
 }
 
-
 // Handle mouse down event on a cell
 function handleCellMouseDown(row, col) {
   return function () {
@@ -53,7 +51,7 @@ function handleCellMouseDown(row, col) {
     } else if (grid[row][col] === CELL_START) {
       grid[row][col] = CELL_EMPTY;
       this.classList.remove("start");
-      this.innerHTML = ""
+      this.innerHTML = "";
       startCell = null;
     } else if (grid[row][col] === CELL_END) {
       grid[row][col] = CELL_EMPTY;
@@ -84,6 +82,369 @@ function handleCellMouseOver(row, col) {
 function initialize() {
   initializeGrid();
   createGridCells();
+}
+
+//CHANGED#
+function performBiBFS(startCell, endCell) {
+  const startQueue = [];
+  const endQueue = [];
+
+  const startVisited = new Array(ROWS)
+    .fill()
+    .map(() => new Array(COLS).fill(false));
+  const endVisited = new Array(ROWS)
+    .fill()
+    .map(() => new Array(COLS).fill(false));
+
+  const startParent = new Array(ROWS).fill().map(() => new Array(COLS));
+  const endParent = new Array(ROWS).fill().map(() => new Array(COLS));
+
+  const startDirections = [
+    [-1, 0], // Up
+    [0, 1], // Right
+    [1, 0], // Down
+    [0, -1], // Left
+  ];
+
+  const endDirections = [
+    [1, 0], // Down
+    [0, -1], // Left
+    [-1, 0], // Up
+    [0, 1], // Right
+  ];
+
+  const { row: startRow, col: startCol } = startCell;
+  const { row: endRow, col: endCol } = endCell;
+
+  startQueue.push({ row: startRow, col: startCol });
+  startVisited[startRow][startCol] = true;
+
+  endQueue.push({ row: endRow, col: endCol });
+  endVisited[endRow][endCol] = true;
+
+  let isEndReached = false;
+  let commonNode = null;
+
+  let traverseDelay = 200; // Initial delay
+  let currentDelay = traverseDelay;
+
+  traverseNext();
+
+  function traverseNext() {
+    if (!startQueue.length || !endQueue.length || !isEndReached) {
+      if (startQueue.length) {
+        const { row, col } = startQueue.shift();
+        for (const [dx, dy] of startDirections) {
+          const newRow = row + dx;
+          const newCol = col + dy;
+          if (
+            newRow >= 0 &&
+            newRow < ROWS &&
+            newCol >= 0 &&
+            newCol < COLS &&
+            grid[newRow][newCol] !== CELL_WALL &&
+            !startVisited[newRow][newCol]
+          ) {
+            startQueue.push({ row: newRow, col: newCol });
+            startVisited[newRow][newCol] = true;
+            startParent[newRow][newCol] = { row, col };
+
+            // Check if the cell is visited by the backward search
+            if (endVisited[newRow][newCol]) {
+              isEndReached = true;
+              commonNode = { row: newRow, col: newCol };
+              break;
+            }
+          }
+        }
+        const cell = document.querySelector(
+          `.cell:nth-child(${row * COLS + col + 1})`
+        );
+        cell.classList.add("visited");
+        setTimeout(() => traverseNext(), currentDelay); // Closure captures the correct currentDelay value
+      }
+
+      if (endQueue.length && !isEndReached) {
+        const { row, col } = endQueue.shift();
+        for (const [dx, dy] of endDirections) {
+          const newRow = row + dx;
+          const newCol = col + dy;
+          if (
+            newRow >= 0 &&
+            newRow < ROWS &&
+            newCol >= 0 &&
+            newCol < COLS &&
+            grid[newRow][newCol] !== CELL_WALL &&
+            !endVisited[newRow][newCol]
+          ) {
+            endQueue.push({ row: newRow, col: newCol });
+            endVisited[newRow][newCol] = true;
+            endParent[newRow][newCol] = { row, col };
+
+            // Check if the cell is visited by the forward search
+            if (startVisited[newRow][newCol]) {
+              isEndReached = true;
+              commonNode = { row: newRow, col: newCol };
+              break;
+            }
+          }
+        }
+        const cell = document.querySelector(
+          `.cell:nth-child(${row * COLS + col + 1})`
+        );
+        cell.classList.add("visited");
+        setTimeout(() => traverseNext(), currentDelay); // Closure captures the correct currentDelay value
+      }
+
+      // If both searches are completed but no path is found
+      if (!isEndReached && !startQueue.length && !endQueue.length) {
+        alert("No path found.");
+      }
+
+      // Reduce the current delay for the next step
+      currentDelay = Math.max(1, currentDelay - 5); // You can adjust the step size for delay reduction
+    } else {
+      // If we found a common node, reconstruct and visualize the shortest path
+      let row = commonNode.row;
+      let col = commonNode.col;
+
+      // Reconstruct the path from the start to the common node
+      while (startParent[row][col]) {
+        const { row: parentRow, col: parentCol } = startParent[row][col];
+        const cell = document.querySelector(
+          `.cell:nth-child(${row * COLS + col + 1})`
+        );
+        cell.classList.add("shortest-path");
+        row = parentRow;
+        col = parentCol;
+      }
+
+      // Reconstruct the path from the end to the common node
+      row = commonNode.row;
+      col = commonNode.col;
+      while (endParent[row][col]) {
+        const { row: parentRow, col: parentCol } = endParent[row][col];
+        const cell = document.querySelector(
+          `.cell:nth-child(${row * COLS + col + 1})`
+        );
+        cell.classList.add("shortest-path");
+        row = parentRow;
+        col = parentCol;
+      }
+
+      const startCell = document.querySelector(
+        `.cell:nth-child(${startRow * COLS + startCol + 1})`
+      );
+      startCell.classList.add("shortest-path");
+      const endCell = document.querySelector(
+        `.cell:nth-child(${endRow * COLS + endCol + 1})`
+      );
+      endCell.classList.add("shortest-path");
+
+      // Finished animating the shortest path, set isRunning to false
+      isRunning = false;
+    }
+  }
+}
+
+function performastar() {
+  message.innerHTML = "A* algorithm ensures the shortest path using heuristics";
+  const pq = new PriorityQueue(
+    (a, b) => a.distance + a.heuristic - b.distance - b.heuristic
+  );
+
+  const distance = new Array(ROWS)
+    .fill()
+    .map(() => new Array(COLS).fill(Number.MAX_VALUE));
+  const heuristic = new Array(ROWS).fill().map(() => new Array(COLS));
+
+  const parent = new Array(ROWS).fill().map(() => new Array(COLS));
+
+  const directions = [
+    [-1, 0], // Up
+    [0, 1], // Right
+    [1, 0], // Down
+    [0, -1], // Left
+  ];
+
+  const { row: startRow, col: startCol } = startCell;
+  const { row: endRow, col: endCol } = endCell;
+
+  distance[startRow][startCol] = 0;
+  pq.enqueue({ row: startRow, col: startCol, distance: 0, heuristic: 0 });
+
+  let isEndReached = false;
+
+  traverseNext();
+
+  // Define a function to traverse the next cell with a delay
+  async function traverseNext() {
+    while (stack.length > 0 && !isEndReached) {
+      const { row, col } = stack.pop();
+
+      // If we have reached the end cell, reconstruct and visualize the shortest path
+      if (row === endRow && col === endCol) {
+        isEndReached = true;
+        visualizeShortestPath(parent);
+        return;
+      }
+
+      for (const [dx, dy] of directions) {
+        const newRow = row + dx;
+        const newCol = col + dy;
+
+        if (
+          newRow >= 0 &&
+          newRow < ROWS &&
+          newCol >= 0 &&
+          newCol < COLS &&
+          grid[newRow][newCol] !== CELL_WALL &&
+          !visited[newRow][newCol]
+        ) {
+          visited[newRow][newCol] = true;
+          parent[newRow][newCol] = { row, col };
+
+          await new Promise((resolve) => setTimeout(resolve, traverseDelay));
+
+          if (!isEndReached) {
+            const cell = document.querySelector(
+              `.cell:nth-child(${newRow * COLS + newCol + 1})`
+            );
+            cell.classList.add("visited");
+
+            // Only push the new cell to the stack if the end node has not been reached yet
+            stack.push({ row: newRow, col: newCol });
+          }
+        }
+      }
+    }
+
+    // If we reached here, it means there is no valid path from the start to the end
+    if (!isEndReached) {
+      alert("No path found.");
+    }
+  }
+
+  function heuristicValue(row, col) {
+    // Calculate the Manhattan distance heuristic
+    return Math.abs(endRow - row) + Math.abs(endCol - col);
+  }
+}
+
+// Perform Depth-First Search (DFS) algorithm
+
+async function performDFS() {
+  // Create a stack to store nodes to visit
+  message.innerHTML = "DFS does not guarantee the shortest path";
+  const stack = [];
+
+  // Create a 2D array to track visited nodes
+  const visited = new Array(ROWS);
+  for (let i = 0; i < ROWS; i++) {
+    visited[i] = new Array(COLS).fill(false);
+  }
+
+  // Create a 2D array to track the parent of each node (for path reconstruction)
+  const parent = new Array(ROWS);
+  for (let i = 0; i < ROWS; i++) {
+    parent[i] = new Array(COLS);
+  }
+
+  // Define the possible directions to move in the grid (up, right, down, left)
+  const directions = [
+    [-1, 0], // Up
+    [0, 1], // Right
+    [1, 0], // Down
+    [0, -1], // Left
+  ];
+
+  // Get the coordinates of the start and end cells
+  const { row: startRow, col: startCol } = startCell;
+  const { row: endRow, col: endCol } = endCell;
+
+  // Push the start cell to the stack and mark it as visited
+  stack.push({ row: startRow, col: startCol });
+  visited[startRow][startCol] = true;
+
+  let isEndReached = false; // Flag to indicate if the end cell has been reached
+
+  // Define a function to traverse the next cell with a delay
+  //  traverseDelay = 200;
+  async function traverseNext() {
+    if (stack.length > 0 && !isEndReached) {
+      // Pop the next node from the stack
+      const { row, col } = stack.pop();
+
+      // If we have reached the end cell, reconstruct and visualize the shortest path
+      if (row === endRow && col === endCol) {
+        isEndReached = true;
+        visualizeShortestPath(parent);
+        return;
+      }
+
+      // Visit the neighbors of the current cell
+      for (const [dx, dy] of directions) {
+        const newRow = row + dx;
+        const newCol = col + dy;
+
+        // Check if the neighbor is within the grid boundaries and is not a wall
+        if (
+          newRow >= 0 &&
+          newRow < ROWS &&
+          newCol >= 0 &&
+          newCol < COLS &&
+          grid[newRow][newCol] !== CELL_WALL &&
+          !visited[newRow][newCol]
+        ) {
+          // Push the neighbor to the stack, mark it as visited, set its parent, and visualize it
+          stack.push({ row: newRow, col: newCol });
+          visited[newRow][newCol] = true;
+          parent[newRow][newCol] = { row, col };
+
+          // Add a delay before traversing the next cell
+          await new Promise((resolve) => setTimeout(resolve, traverseDelay));
+
+          const cell = document.querySelector(
+            `.cell:nth-child(${newRow * COLS + newCol + 1})`
+          );
+          cell.classList.add("visited");
+
+          // Traverse the next cell
+          await traverseNext();
+        }
+      }
+    } else {
+      // If we reached here, it means there is no valid path from the start to the end
+      if (!isEndReached) {
+        alert("No path found.");
+      }
+    }
+  }
+
+  //let traverseDelay = 150; // Delay between traversing each cell
+  await traverseNext(); // Start DFS traversal with visualization delay
+}
+
+// Priority Queue implementation (used for Dijkstra's algorithm)
+
+class PriorityQueue {
+  constructor(compareFunc) {
+    this.queue = [];
+    this.compareFunc = compareFunc;
+  }
+
+  enqueue(element) {
+    this.queue.push(element);
+    this.queue.sort(this.compareFunc);
+  }
+
+  dequeue() {
+    return this.queue.shift();
+  }
+
+  isEmpty() {
+    return this.queue.length === 0;
+  }
 }
 
 // Perform breadth-first search (BFS) algorithm
@@ -124,7 +485,7 @@ function performBFS() {
   let isEndReached = false; // Flag to indicate if the end cell has been reached
 
   // While there are nodes to visit in the queue
-   // Delay between traversing each cell
+  // Delay between traversing each cell
   traverseNext();
 
   function traverseNext() {
@@ -167,96 +528,6 @@ function performBFS() {
           }, traverseDelay);
         }
       }
-    } 
-    else {
-      // If we reached here, it means there is no valid path from the start to the end
-     if(!isEndReached){
-        alert("No path found.");
-     }
-    }
-  }
-}
-
-// Perform Depth-First Search (DFS) algorithm
-function performDFS() {
-  // Create a stack to store nodes to visit
-  message.innerHTML = "DFS does not guarantee the shortest path";
-  const stack = [];
-
-  // Create a 2D array to track visited nodes
-  const visited = new Array(ROWS);
-  for (let i = 0; i < ROWS; i++) {
-    visited[i] = new Array(COLS).fill(false);
-  }
-
-  // Create a 2D array to track the parent of each node (for path reconstruction)
-  const parent = new Array(ROWS);
-  for (let i = 0; i < ROWS; i++) {
-    parent[i] = new Array(COLS);
-  }
-
-  // Define the possible directions to move in the grid (up, right, down, left)
-  const directions = [
-    [-1, 0], // Up
-    [0, 1], // Right
-    [1, 0], // Down
-    [0, -1], // Left
-  ];
-
-  // Get the coordinates of the start and end cells
-  const { row: startRow, col: startCol } = startCell;
-  const { row: endRow, col: endCol } = endCell;
-
-  // Push the start cell to the stack and mark it as visited
-  stack.push({ row: startRow, col: startCol });
-  visited[startRow][startCol] = true;
-
-  let isEndReached = false; // Flag to indicate if the end cell has been reached
-
-  // While there are nodes to visit in the stack
-  let traverseDelay = 200; // Delay between traversing each cell
-  traverseNext();
-
-  function traverseNext() {
-    if (stack.length > 0 && !isEndReached) {
-      // Pop the next node from the stack
-      const { row, col } = stack.pop();
-
-      // If we have reached the end cell, reconstruct and visualize the shortest path
-      if (row === endRow && col === endCol) {
-        isEndReached = true;
-        visualizeShortestPath(parent);
-        return;
-      }
-
-      // Visit the neighbors of the current cell
-      for (const [dx, dy] of directions) {
-        const newRow = row + dx;
-        const newCol = col + dy;
-
-        // Check if the neighbor is within the grid boundaries and is not a wall
-        if (
-          newRow >= 0 &&
-          newRow < ROWS &&
-          newCol >= 0 &&
-          newCol < COLS &&
-          grid[newRow][newCol] !== CELL_WALL &&
-          !visited[newRow][newCol]
-        ) {
-          // Push the neighbor to the stack, mark it as visited, set its parent, and visualize it
-          stack.push({ row: newRow, col: newCol });
-          visited[newRow][newCol] = true;
-          parent[newRow][newCol] = { row, col };
-
-          setTimeout(() => {
-            const cell = document.querySelector(
-              `.cell:nth-child(${newRow * COLS + newCol + 1})`
-            );
-            cell.classList.add("visited");
-            traverseNext(); // Traverse the next cell
-          }, traverseDelay);
-        }
-      }
     } else {
       // If we reached here, it means there is no valid path from the start to the end
       if (!isEndReached) {
@@ -265,347 +536,6 @@ function performDFS() {
     }
   }
 }
-
-function performbiBFS() {
-  const startQueue = [];
-  const endQueue = [];
-
-  const startVisited = new Array(ROWS)
-    .fill()
-    .map(() => new Array(COLS).fill(false));
-  const endVisited = new Array(ROWS)
-    .fill()
-    .map(() => new Array(COLS).fill(false));
-
-  const startParent = new Array(ROWS).fill().map(() => new Array(COLS));
-  const endParent = new Array(ROWS).fill().map(() => new Array(COLS));
-
-  const startDirections = [
-    [-1, 0], // Up
-    [0, 1], // Right
-    [1, 0], // Down
-    [0, -1], // Left
-  ];
-
-  const endDirections = [
-    [1, 0], // Down
-    [0, -1], // Left
-    [-1, 0], // Up
-    [0, 1], // Right
-  ];
-
-  const { row: startRow, col: startCol } = startCell;
-  const { row: endRow, col: endCol } = endCell;
-
-  startQueue.push({ row: startRow, col: startCol });
-  startVisited[startRow][startCol] = true;
-
-  endQueue.push({ row: endRow, col: endCol });
-  endVisited[endRow][endCol] = true;
-
-  let isEndReached = false;
-  let commonNode = null;
-
-  let traverseDelay = 100;
-
-  traverseNext();
-
-  function traverseNext() {
-    if (!startQueue.length || !endQueue.length || !isEndReached) {
-      if (startQueue.length) {
-        const { row, col } = startQueue.shift();
-        for (const [dx, dy] of startDirections) {
-          const newRow = row + dx;
-          const newCol = col + dy;
-          if (
-            newRow >= 0 &&
-            newRow < ROWS &&
-            newCol >= 0 &&
-            newCol < COLS &&
-            grid[newRow][newCol] !== CELL_WALL &&
-            !startVisited[newRow][newCol]
-          ) {
-            startQueue.push({ row: newRow, col: newCol });
-            startVisited[newRow][newCol] = true;
-            startParent[newRow][newCol] = { row, col };
-          }
-        }
-        const cell = document.querySelector(
-          `.cell:nth-child(${row * COLS + col + 1})`
-        );
-        cell.classList.add("visited");
-        setTimeout(traverseNext, traverseDelay);
-      } else if (endQueue.length) {
-        const { row, col } = endQueue.shift();
-        for (const [dx, dy] of endDirections) {
-          const newRow = row + dx;
-          const newCol = col + dy;
-          if (
-            newRow >= 0 &&
-            newRow < ROWS &&
-            newCol >= 0 &&
-            newCol < COLS &&
-            grid[newRow][newCol] !== CELL_WALL &&
-            !endVisited[newRow][newCol]
-          ) {
-            endQueue.push({ row: newRow, col: newCol });
-            endVisited[newRow][newCol] = true;
-            endParent[newRow][newCol] = { row, col };
-          }
-        }
-        const cell = document.querySelector(
-          `.cell:nth-child(${row * COLS + col + 1})`
-        );
-        cell.classList.add("visited");
-        setTimeout(traverseNext, traverseDelay);
-      } else {
-        if (!isEndReached) {
-          alert("No path found.");
-        }
-      }
-    } else {
-      // If we found a common node, reconstruct and visualize the shortest path
-      reconstructPath(startParent, commonNode, true);
-      reconstructPath(endParent, commonNode, false);
-    }
-  }
-
-  function reconstructPath(parent, commonNode, isStart) {
-    let row = commonNode.row;
-    let col = commonNode.col;
-
-    while (parent[row][col]) {
-      const { row: parentRow, col: parentCol } = parent[row][col];
-      const cell = document.querySelector(
-        `.cell:nth-child(${row * COLS + col + 1})`
-      );
-      cell.classList.add("shortest-path");
-      row = parentRow;
-      col = parentCol;
-    }
-
-    const startCell = document.querySelector(
-      `.cell:nth-child(${startRow * COLS + startCol + 1})`
-    );
-    startCell.classList.add("shortest-path");
-    const endCell = document.querySelector(
-      `.cell:nth-child(${endRow * COLS + endCol + 1})`
-    );
-    endCell.classList.add("shortest-path");
-
-    // Finished animating the shortest path, set isRunning to false
-    isRunning = false;
-  }
-}
-
-
-function performastar() {
-  message.innerHTML = "A* algorithm ensures the shortest path using heuristics";
-  const pq = new PriorityQueue(
-    (a, b) => a.distance + a.heuristic - b.distance - b.heuristic
-  );
-
-  const distance = new Array(ROWS)
-    .fill()
-    .map(() => new Array(COLS).fill(Number.MAX_VALUE));
-  const heuristic = new Array(ROWS).fill().map(() => new Array(COLS));
-
-  const parent = new Array(ROWS).fill().map(() => new Array(COLS));
-
-  const directions = [
-    [-1, 0], // Up
-    [0, 1], // Right
-    [1, 0], // Down
-    [0, -1], // Left
-  ];
-
-  const { row: startRow, col: startCol } = startCell;
-  const { row: endRow, col: endCol } = endCell;
-
-  distance[startRow][startCol] = 0;
-  pq.enqueue({ row: startRow, col: startCol, distance: 0, heuristic: 0 });
-
-  let isEndReached = false;
-
-  let traverseDelay = 100;
-
-  traverseNext();
-
-  function traverseNext() {
-    if (!pq.isEmpty() && !isEndReached) {
-      const { row, col } = pq.dequeue();
-
-      if (row === endRow && col === endCol) {
-        isEndReached = true;
-        visualizeShortestPath(parent);
-        return;
-      }
-
-      for (const [dx, dy] of directions) {
-        const newRow = row + dx;
-        const newCol = col + dy;
-
-        if (
-          newRow >= 0 &&
-          newRow < ROWS &&
-          newCol >= 0 &&
-          newCol < COLS &&
-          grid[newRow][newCol] !== CELL_WALL
-        ) {
-          const newDistance = distance[row][col] + 1;
-          const newHeuristic = heuristicValue(newRow, newCol);
-
-          if (newDistance + newHeuristic < distance[newRow][newCol]) {
-            distance[newRow][newCol] = newDistance;
-            heuristic[newRow][newCol] = newHeuristic;
-            parent[newRow][newCol] = { row, col };
-            pq.enqueue({
-              row: newRow,
-              col: newCol,
-              distance: newDistance,
-              heuristic: newHeuristic,
-            });
-
-            const cell = document.querySelector(
-              `.cell:nth-child(${newRow * COLS + newCol + 1})`
-            );
-            cell.classList.add("visited");
-            setTimeout(traverseNext, traverseDelay);
-          }
-        }
-      }
-    } else {
-      if (!isEndReached) {
-        alert("No path found.");
-      }
-    }
-  }
-
-  function heuristicValue(row, col) {
-    // Calculate the Manhattan distance heuristic
-    return Math.abs(endRow - row) + Math.abs(endCol - col);
-  }
-}
-
-// function performDijkstra() {
-//   // Create a priority queue to store nodes to visit
-   // message.innerHTML =
-    //  "Dijkstra's algorithm guarantees the shortest path in non-negative edge weighted graphs";
-
-//   const pq = new PriorityQueue((a, b) => a.distance - b.distance);
-
-//   // Create a 2D array to track the distance of each node from the start node
-//   const distance = new Array(ROWS);
-//   for (let i = 0; i < ROWS; i++) {
-//     distance[i] = new Array(COLS).fill(Number.MAX_VALUE);
-//   }
-
-//   // Create a 2D array to track the parent of each node (for path reconstruction)
-//   const parent = new Array(ROWS);
-//   for (let i = 0; i < ROWS; i++) {
-//     parent[i] = new Array(COLS);
-//   }
-
-//   // Get the coordinates of the start and end cells
-//   const { row: startRow, col: startCol } = startCell;
-//   const { row: endRow, col: endCol } = endCell;
-
-//   // Set the distance of the start node to 0 and enqueue it
-//   distance[startRow][startCol] = 0;
-//   pq.enqueue({ row: startRow, col: startCol, distance: 0 });
-
-//   let isEndReached = false; // Flag to indicate if the end cell has been reached
-
-//   // While there are nodes to visit in the priority queue
-//    // Delay between traversing each cell
-//   traverseNext();
-
-//   function traverseNext() {
-//     if (!pq.isEmpty() && !isEndReached) {
-//       // Dequeue the node with the smallest distance
-//       const { row, col } = pq.dequeue();
-
-//       // If we have reached the end cell, reconstruct and visualize the shortest path
-//       if (row === endRow && col === endCol) {
-//         isEndReached = true;
-//         visualizeShortestPath(parent);
-//         return;
-//       }
-
-//       // Visit the neighbors of the current cell
-//       const directions = [
-//         [-1, 0], // Up
-//         [0, 1], // Right
-//         [1, 0], // Down
-//         [0, -1], // Left
-//       ];
-
-//       for (const [dx, dy] of directions) {
-//         const newRow = row + dx;
-//         const newCol = col + dy;
-
-//         // Check if the neighbor is within the grid boundaries and is not a wall
-//         if (
-//           newRow >= 0 &&
-//           newRow < ROWS &&
-//           newCol >= 0 &&
-//           newCol < COLS &&
-//           grid[newRow][newCol] !== CELL_WALL
-//         ) {
-//           // Calculate the new distance to the neighbor through the current cell
-//           const newDistance = distance[row][col] + 1;
-
-//           // If the new distance is smaller, update the distance and enqueue the neighbor
-//           if (newDistance < distance[newRow][newCol]) {
-//             distance[newRow][newCol] = newDistance;
-//             parent[newRow][newCol] = { row, col };
-
-//             // Enqueue the neighbor with the updated distance for further exploration
-//             pq.enqueue({ row: newRow, col: newCol, distance: newDistance });
-
-//             // Visualize the cell with a delay
-//             setTimeout(() => {
-//               const cell = document.querySelector(
-//                 `.cell:nth-child(${newRow * COLS + newCol + 1})`
-//               );
-//               cell.classList.add("visited");
-//               traverseNext(); // Traverse the next cell
-//             }, traverseDelay);
-//           }
-//         }
-//       }
-//     } else {
-//       // If we reached here, it means there is no valid path from the start to the end
-//       if (!isEndReached) {
-//         alert("No path found.");
-//       }
-//     }
-//   }
-// }
-
-// Priority Queue implementation (used for Dijkstra's algorithm)
-
-class PriorityQueue {
-  constructor(compareFunc) {
-    this.queue = [];
-    this.compareFunc = compareFunc;
-  }
-
-  enqueue(element) {
-    this.queue.push(element);
-    this.queue.sort(this.compareFunc);
-  }
-
-  dequeue() {
-    return this.queue.shift();
-  }
-
-  isEmpty() {
-    return this.queue.length === 0;
-  }
-}
-
-
 
 // Visualize the shortest path from the start to the end cell
 function visualizeShortestPath(parent) {
@@ -635,7 +565,7 @@ function visualizeShortestPath(parent) {
     }
   }
 }
-
+// Run the pathfinding algorithm
 
 // Run the pathfinding algorithm
 function runAlgorithm(algoName) {
@@ -653,21 +583,14 @@ function runAlgorithm(algoName) {
     performBFS();
   } else if (algoName === "DFS") {
     performDFS();
-   } 
-  //  else if (algoName === "dijkstra")
-  //   {
-  //  message.innerHTML ="Dijguarantees thshortest path in non-negative edge weighted graphs";
-  //  performdjkts();
-  //  } 
-  else if (algoName === "biBFS") {
-     performbiBFS();
   } else if (algoName === "astar") {
-      performastar();
+    performastar();
+  } else if (algoName === "biBFS") {
+    performBiBFS(startCell, endCell);
   }
 
   isRunning = false;
 }
-
 
 function createGridCells() {
   const container = document.getElementById("grid");
@@ -772,19 +695,19 @@ document.getElementById("runButton").addEventListener("click", function () {
   runAlgorithm(algoName.value);
 });
 document.getElementById("resetButton").addEventListener("click", resetGrid);
-document.getElementById("RandomWalls").addEventListener("click", generateRandomWalls);
+document
+  .getElementById("RandomWalls")
+  .addEventListener("click", generateRandomWalls);
 // Add event listener to the "Generate Random Maze" button
-
 
 const algoName = document.getElementById("algo-select");
 const visSpeed = document.getElementById("ani-speed");
 
 function btnNameChange() {
-  document.getElementById("runButton").textContent = "Visualize " + algoName.value;
+  document.getElementById("runButton").textContent =
+    "Visualize " + algoName.value;
   document.getElementById("runButton").addEventListener("click", function () {
-        
     runAlgorithm(algoName.value);
-  
   });
   if (algoName.value == "BFS")
     message.innerHTML = "BFS guarantees the shortest path";
@@ -795,8 +718,6 @@ function btnNameChange() {
       "A* algorithm ensures the shortest path using heuristics";
   else if (algoName.value == "biBFS")
     message.innerHTML = "Bidirectional BFS guarantees the shortest path";
-        
-
 }
 algoName.onchange = btnNameChange;
 function aniSpeed() {
@@ -806,7 +727,6 @@ function aniSpeed() {
 visSpeed.onchange = aniSpeed;
 
 let message = document.getElementById("message");
-
 
 // Call the initialize function when the page loads
 window.onload = initialize;
