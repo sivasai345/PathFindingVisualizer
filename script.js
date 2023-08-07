@@ -86,6 +86,7 @@ function initialize() {
 
 //CHANGED#
 function performBiBFS(startCell, endCell) {
+  console.log(traverseDelay);
   const startQueue = [];
   const endQueue = [];
 
@@ -125,12 +126,10 @@ function performBiBFS(startCell, endCell) {
   let isEndReached = false;
   let commonNode = null;
 
-  let traverseDelay = 200; // Initial delay
-  let currentDelay = traverseDelay;
-
   traverseNext();
 
   function traverseNext() {
+    
     if (!startQueue.length || !endQueue.length || !isEndReached) {
       if (startQueue.length) {
         const { row, col } = startQueue.shift();
@@ -161,7 +160,7 @@ function performBiBFS(startCell, endCell) {
           `.cell:nth-child(${row * COLS + col + 1})`
         );
         cell.classList.add("visited");
-        setTimeout(() => traverseNext(), currentDelay); // Closure captures the correct currentDelay value
+        setTimeout(() => traverseNext(), traverseDelay); // Closure captures the correct currentDelay value
       }
 
       if (endQueue.length && !isEndReached) {
@@ -193,7 +192,7 @@ function performBiBFS(startCell, endCell) {
           `.cell:nth-child(${row * COLS + col + 1})`
         );
         cell.classList.add("visited");
-        setTimeout(() => traverseNext(), currentDelay); // Closure captures the correct currentDelay value
+        setTimeout(() => traverseNext(), traverseDelay); // Closure captures the correct currentDelay value
       }
 
       // If both searches are completed but no path is found
@@ -201,8 +200,7 @@ function performBiBFS(startCell, endCell) {
         alert("No path found.");
       }
 
-      // Reduce the current delay for the next step
-      currentDelay = Math.max(1, currentDelay - 5); // You can adjust the step size for delay reduction
+    
     } else {
       // If we found a common node, reconstruct and visualize the shortest path
       let row = commonNode.row;
@@ -247,8 +245,9 @@ function performBiBFS(startCell, endCell) {
   }
 }
 
-function performastar() {
+function performAstar() {
   message.innerHTML = "A* algorithm ensures the shortest path using heuristics";
+
   const pq = new PriorityQueue(
     (a, b) => a.distance + a.heuristic - b.distance - b.heuristic
   );
@@ -256,6 +255,7 @@ function performastar() {
   const distance = new Array(ROWS)
     .fill()
     .map(() => new Array(COLS).fill(Number.MAX_VALUE));
+
   const heuristic = new Array(ROWS).fill().map(() => new Array(COLS));
 
   const parent = new Array(ROWS).fill().map(() => new Array(COLS));
@@ -271,16 +271,29 @@ function performastar() {
   const { row: endRow, col: endCol } = endCell;
 
   distance[startRow][startCol] = 0;
-  pq.enqueue({ row: startRow, col: startCol, distance: 0, heuristic: 0 });
+  heuristic[startRow][startCol] = heuristicValue(startRow, startCol); // Initialize heuristic value for the start cell.
+  pq.enqueue({
+    row: startRow,
+    col: startCol,
+    distance: 0,
+    heuristic: heuristic[startRow][startCol],
+  });
 
   let isEndReached = false;
+  const visited = new Array(ROWS).fill().map(() => new Array(COLS).fill(false));
 
   traverseNext();
 
   // Define a function to traverse the next cell with a delay
   async function traverseNext() {
-    while (stack.length > 0 && !isEndReached) {
-      const { row, col } = stack.pop();
+    while (!pq.isEmpty() && !isEndReached) {
+      const { row, col } = pq.dequeue();
+
+      if (visited[row][col]) {
+        continue; // Skip if the cell is already visited (due to outdated priority in the queue).
+      }
+
+      visited[row][col] = true;
 
       // If we have reached the end cell, reconstruct and visualize the shortest path
       if (row === endRow && col === endCol) {
@@ -301,21 +314,31 @@ function performastar() {
           grid[newRow][newCol] !== CELL_WALL &&
           !visited[newRow][newCol]
         ) {
-          visited[newRow][newCol] = true;
-          parent[newRow][newCol] = { row, col };
+          const newDistance = distance[row][col] + 1;
 
-          await new Promise((resolve) => setTimeout(resolve, traverseDelay));
+          if (newDistance < distance[newRow][newCol]) {
+            distance[newRow][newCol] = newDistance;
+            parent[newRow][newCol] = { row, col };
 
-          if (!isEndReached) {
-            const cell = document.querySelector(
-              `.cell:nth-child(${newRow * COLS + newCol + 1})`
-            );
-            cell.classList.add("visited");
-
-            // Only push the new cell to the stack if the end node has not been reached yet
-            stack.push({ row: newRow, col: newCol });
+            // Update heuristic value and add to priority queue
+            heuristic[newRow][newCol] = heuristicValue(newRow, newCol);
+            pq.enqueue({
+              row: newRow,
+              col: newCol,
+              distance: newDistance,
+              heuristic: heuristic[newRow][newCol],
+            });
           }
         }
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, traverseDelay));
+
+      if (!isEndReached) {
+        const cell = document.querySelector(
+          `.cell:nth-child(${row * COLS + col + 1})`
+        );
+        cell.classList.add("visited");
       }
     }
 
@@ -330,6 +353,7 @@ function performastar() {
     return Math.abs(endRow - row) + Math.abs(endCol - col);
   }
 }
+
 
 // Perform Depth-First Search (DFS) algorithm
 
@@ -451,6 +475,7 @@ class PriorityQueue {
 
 function performBFS() {
   // Create a queue to store the nodes to visit
+  console.log(traverseDelay);
   message.innerHTML = "BFS guarantees the shortest path";
   const queue = [];
 
@@ -584,7 +609,7 @@ function runAlgorithm(algoName) {
   } else if (algoName === "DFS") {
     performDFS();
   } else if (algoName === "astar") {
-    performastar();
+    performAstar();
   } else if (algoName === "biBFS") {
     performBiBFS(startCell, endCell);
   }
@@ -721,8 +746,7 @@ function btnNameChange() {
 }
 algoName.onchange = btnNameChange;
 function aniSpeed() {
-  traverseDelay = Number(visSpeed.value) * traverseDelay;
-  console.log(visSpeed.value);
+  traverseDelay = Number(visSpeed.value) * 200; 
 }
 visSpeed.onchange = aniSpeed;
 
