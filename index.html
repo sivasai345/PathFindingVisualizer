@@ -28,22 +28,30 @@
         <option value="astar">A*</option>
       </select>
       <select name="animation-speed" id="ani-speed">
-        <option value="0.5">Animation speed: Slow</option>
-        <option value="0.43">Animation speed:Normal</option>
-        <option value="0.1">Animation speed: Fast</option>
+        <option value="0.5">speed: Slow</option>
+        <option value="0.43">speed:Normal</option>
+        <option value="0.1"> speed: Fast</option>
   
       </select>
+      
       <button id="runButton">Visualize</button>
-      <button id="resetButton">Clear</button>
+      <button id="resetButton">Clear Board</button>
+      <button id="resetPath">Clear Path</button>
       <button id="RandomWalls">Generate RandomWalls</button>
       <!-- <button id="generateRandomMaze">Generate Maze</button> -->
     </div>
     <div class="middle">
-      <div class="defs">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;start node <i class="fa-solid fa-angles-right"></i>
-        &nbsp;&nbsp;&nbsp;&nbsp;end node
-        <i
-          class="fa-regular fa-circle-dot fa-beat"></i> </div>
-      <div class="message" id="message">Select Start Cell and End Cell</div>
+     <div class="defs">
+        <div>start node <i class="fa-solid fa-angles-right"></i></div>
+        <div>end node <i class="fa-regular fa-circle-dot fa-beat"></i></div>
+        <div>path <i class="fa-solid fa-square" style="color: #ffff00;"></i></div>
+        <div class="unvisited">unvisited <i class="fa-regular fa-square" style="color: #00d8db;"></i></div>
+        <div>visited <i class="fa-solid fa-square" style="color: rgba(0, 190, 218, 0.75)"></i></div>
+        <div>wall <i class="fa-solid fa-square" style="color: black;"></i> </div>
+     </div>
+</div> 
+      
+<div class="message" id="message">Select Start Cell and End Cell</div> 
     </div>
     <div>
       <div id="grid"></div>
@@ -51,7 +59,7 @@
   </div>
 
   <script src="script.js"></script>
-  <script src="algo.js"></script>
+  <!-- <script src="algo.js"></script> -->
 </body>
 
 </html>

@@ -7,6 +7,7 @@ body {
 .container {
   display: flex;
   flex-direction: column;
+
 }
 
 .nav {
@@ -18,27 +19,29 @@ body {
   align-items: center;
 }
 
+
 #grid {
   display: grid;
-  grid-template-columns: repeat(48, 30px);
-  grid-template-rows: repeat(18, 30px);
+  grid-template-columns: repeat(58, 25px);
+  grid-template-rows: repeat(21, 25px);
   gap: 1px;
   background-color: #f2f2f2;
+  margin: 10px ;
 }
 
 .cell {
-  width: 30px;
-  height: 30px;
+  width: 25px;
+  height: 25px;
   background-color: #fff;
   border: 1px solid #87d8f3;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease
 }
 
 .start {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.6rem;
+  font-size: 1.3rem;
 }
 
 .end {
@@ -49,15 +52,83 @@ body {
 }
 
 .wall {
-  background-color: #000;
+  background-color: black;
+}
+
+
+.defs.unvisited i{
+  border: 2px solid black;
 }
 
 .visited {
-  background-color: #4895c2;
+  background-color: rgba(0, 190, 218, 0.75);
+  animation: colorTransition 1s ease-out;
 }
+
+
+/* @keyframes visitedStartNodePurpleAnimation {
+  0% {
+    transform: scale(.3);
+    background-color: rgba(41, 4, 24, 0.75);
+    border-radius: 100%;
+  }
+
+  50% {
+    background-color: rgba(97, 0, 20, 0.75);
+  }
+
+  75% {
+    transform: scale(1.2);
+    background-color: rgba(216, 5, 141, 0.75)
+  }
+
+  100% {
+    transform: scale(1.0);
+    background-color: rgba(178, 67, 255, 0.75);
+  }
+} */
+
+
+@keyframes colorTransition {
+  0% {
+    transform: scale(.3);
+    background-color: rgba(0, 0, 66, 0.75);
+    border-radius: 100%;
+  }
+
+  50% {
+    background-color: rgba(17, 104, 217, 0.75);
+  }
+
+  75% {
+    transform: scale(1.2);
+    background-color: rgba(0, 217, 159, 0.75);
+  }
+
+  100% {
+    transform: scale(1.0);
+    background-color: rgba(0, 190, 218, 0.75);
+  }
+}
+
 
 .shortest-path {
   background-color: #ffff00;
+  animation:  visitedObjectAnimation 0.8s ease-out;
+}
+
+
+
+@keyframes visitedObjectAnimation {
+  0% {
+    transform: scale(.3);
+    background-color: white
+  }
+
+  100% {
+    transform: scale(1.0);
+    background-color: yellow
+  }
 }
 
 .buttons {
@@ -67,7 +138,7 @@ body {
 }
 
 .buttons button {
-  padding: 10px 20px;
+  padding: 10px 25px;
   border: none;
   border-radius: 5px;
   font-size: 1rem;
@@ -96,7 +167,7 @@ body {
 }
 
 .nav button {
-  padding: 10px 20px;
+  padding: 10px 25px;
   border: none;
   border-radius: 5px;
   font-size: 1rem;
@@ -111,24 +182,36 @@ body {
 }
 .middle{
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  /* align-items: center; */
   justify-content: center;
-  margin: 3vh 0;
+   margin-top: 3vh;
 }
 .message{
   text-align: center;
-  width: 50%;
+  /* width: 50%; */
   font-family: 'Edu SA Beginner', cursive;
   font-family: 'Montserrat', sans-serif;
-
-font-size: 2rem;
+  font-size: 1.4rem;
+  margin: 15px 0px;
 }
 
 .defs{
-  margin-right: 30%;
-  position: absolute;
-  left: 30px;
-  top: 100px;
+  text-align: start;
+  /* position: absolute;
+  left: 25px;
+  top: 100px; */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1.3rem;
+  margin: 0px 150px 0 150px;
+}
+
+
+img{
+  width: 30px;
+  height: 30px;
 }
 
 #algo-select {
