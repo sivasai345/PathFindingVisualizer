@@ -19,6 +19,7 @@
 <body>
   <div class="container">
     <div class="nav">
+
       <select name="pets" id="algo-select">
         <option disabled selected value="">Algorithms</option>
         <option value="BFS">BFS</option>
@@ -31,9 +32,26 @@
         <option value="0.5">speed: Slow</option>
         <option value="0.43">speed:Normal</option>
         <option value="0.1"> speed: Fast</option>
-  
+
       </select>
-      
+      <!-- <button id="instructions">Instructions</button>  -->
+      <button id="instructions">Instructions</button>
+      <div id="instructions-content">
+        <h2>Instructions</h2>
+        <p>1 Select a starting and ending cell on the grid..</p>
+        <p>2 When you click on an empty cell, it will turns into a wall.</p>
+        <p>3 Pick an algorithm and opt for animation and click on Visualize to observe its execution.</p>
+        <h2>Additional features:</h2>
+        <p>Generating random walls for convenience, which can be toggled</p>
+        <p>Clearing the path if desired. The ability to choose a new algorithm and watch its visualization after
+          clearing the
+          path.</p>
+
+        <div class="image-container">
+          <img src="pathFindImage.jpg" alt="Visualization Example">
+        </div>
+      </div>
+
       <button id="runButton">Visualize</button>
       <button id="resetButton">Clear Board</button>
       <button id="resetPath">Clear Path</button>
@@ -41,21 +59,21 @@
       <!-- <button id="generateRandomMaze">Generate Maze</button> -->
     </div>
     <div class="middle">
-     <div class="defs">
+      <div class="defs">
         <div>start node <i class="fa-solid fa-angles-right"></i></div>
         <div>end node <i class="fa-regular fa-circle-dot fa-beat"></i></div>
         <div>path <i class="fa-solid fa-square" style="color: #ffff00;"></i></div>
         <div class="unvisited">unvisited <i class="fa-regular fa-square" style="color: #00d8db;"></i></div>
         <div>visited <i class="fa-solid fa-square" style="color: rgba(0, 190, 218, 0.75)"></i></div>
         <div>wall <i class="fa-solid fa-square" style="color: black;"></i> </div>
-     </div>
-</div> 
-      
-<div class="message" id="message">Select Start Cell and End Cell</div> 
+      </div>
     </div>
-    <div>
-      <div id="grid"></div>
-    </div>
+
+    <div class="message" id="message">Select Start Cell and End Cell</div>
+  </div>
+  <div>
+    <div id="grid"></div>
+  </div>
   </div>
 
   <script src="script.js"></script>

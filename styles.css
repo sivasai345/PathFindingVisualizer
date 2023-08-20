@@ -7,18 +7,16 @@ body {
 .container {
   display: flex;
   flex-direction: column;
-
 }
 
 .nav {
   width: 100vw;
   height: 10vh;
-  background-color: #1F3B4D;
+  background-color: #1f3b4d;
   display: flex;
   justify-content: space-around;
   align-items: center;
 }
-
 
 #grid {
   display: grid;
@@ -26,7 +24,7 @@ body {
   grid-template-rows: repeat(21, 25px);
   gap: 1px;
   background-color: #f2f2f2;
-  margin: 10px ;
+  margin: 10px;
 }
 
 .cell {
@@ -34,7 +32,7 @@ body {
   height: 25px;
   background-color: #fff;
   border: 1px solid #87d8f3;
-  transition: background-color 0.2s ease
+  transition: background-color 0.2s ease;
 }
 
 .start {
@@ -55,8 +53,7 @@ body {
   background-color: black;
 }
 
-
-.defs.unvisited i{
+.defs.unvisited i {
   border: 2px solid black;
 }
 
@@ -64,7 +61,6 @@ body {
   background-color: rgba(0, 190, 218, 0.75);
   animation: colorTransition 1s ease-out;
 }
-
 
 /* @keyframes visitedStartNodePurpleAnimation {
   0% {
@@ -88,10 +84,9 @@ body {
   }
 } */
 
-
 @keyframes colorTransition {
   0% {
-    transform: scale(.3);
+    transform: scale(0.3);
     background-color: rgba(0, 0, 66, 0.75);
     border-radius: 100%;
   }
@@ -106,28 +101,25 @@ body {
   }
 
   100% {
-    transform: scale(1.0);
+    transform: scale(1);
     background-color: rgba(0, 190, 218, 0.75);
   }
 }
 
-
 .shortest-path {
   background-color: #ffff00;
-  animation:  visitedObjectAnimation 0.8s ease-out;
+  animation: visitedObjectAnimation 0.8s ease-out;
 }
-
-
 
 @keyframes visitedObjectAnimation {
   0% {
-    transform: scale(.3);
-    background-color: white
+    transform: scale(0.3);
+    background-color: white;
   }
 
   100% {
-    transform: scale(1.0);
-    background-color: yellow
+    transform: scale(1);
+    background-color: yellow;
   }
 }
 
@@ -149,7 +141,7 @@ body {
 }
 
 .buttons button:hover {
-  background-color: #1F3B4D;
+  background-color: #1f3b4d;
 }
 
 .nav select {
@@ -157,7 +149,7 @@ body {
   border: 1px solid #87d8f3;
   border-radius: 5px;
   background-color: #fff;
-  color: #1F3B4D;
+  color: #1f3b4d;
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
@@ -172,7 +164,7 @@ body {
   border-radius: 5px;
   font-size: 1rem;
   cursor: pointer;
-  background-color: #1F3B4D;
+  background-color: #1f3b4d;
   color: #fff;
   transition: background-color 0.2s ease;
 }
@@ -180,23 +172,23 @@ body {
 .nav button:hover {
   background-color: #87d8f3;
 }
-.middle{
+.middle {
   display: flex;
   flex-direction: column;
   /* align-items: center; */
   justify-content: center;
-   margin-top: 3vh;
+  margin-top: 3vh;
 }
-.message{
+.message {
   text-align: center;
   /* width: 50%; */
-  font-family: 'Edu SA Beginner', cursive;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Edu SA Beginner", cursive;
+  font-family: "Montserrat", sans-serif;
   font-size: 1.4rem;
   margin: 15px 0px;
 }
 
-.defs{
+.defs {
   text-align: start;
   /* position: absolute;
   left: 25px;
@@ -208,24 +200,56 @@ body {
   margin: 0px 150px 0 150px;
 }
 
-
-img{
+img {
   width: 30px;
   height: 30px;
 }
 
 #algo-select {
-    /* Your desired color change */
-    background-color: #1F3B4D;
-    /* You can also change other properties like text color */
-    color: white;
-    /* Add any other styles you want when hovering over the select element */
+  /* Your desired color change */
+  background-color: #1f3b4d;
+  /* You can also change other properties like text color */
+  color: white;
+  /* Add any other styles you want when hovering over the select element */
+}
+
+#ani-speed {
+  background-color: #1f3b4d;
+  /* You can also change other properties like text color */
+  color: white;
+  /* Add any other s*/
+}
+
+#instructions-content {
+  display: none;
+  width: 50%;
+  height: 45%;
+  border: 1px solid #ccc;
+  padding: 10px 10px 10px 10px;
+  cursor: pointer;
+  position: absolute;
+  /* background-color: #88ecec; */
+  background-color: white;
+  left: 25%;
+  top: 25.2%;
+  border-radius: 6px;
+}
+
+.image-container {
+ 
+  text-align: center; /* Center the image within the container */
+  position: absolute;
+  top: 10px;
+  right: 50px;
+  margin-top: 10px; /* Add spacing between text and image */
+}
+
+.image-container img{
+
+   width: 130px;
+  height: 130px; /* Adjust the maximum height of the image */
 }
 
 
-#ani-speed{
-   background-color: #1F3B4D;
-    /* You can also change other properties like text color */
-    color: white;
-    /* Add any other s*/
-}
+
+

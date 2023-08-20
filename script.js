@@ -1,7 +1,7 @@
 // Constants for grid dimensions
 const ROWS = 21;
 const COLS = 58;
-let traverseDelay = 500;
+let traverseDelay = 200;
 // Constants for cell types
 const CELL_EMPTY = 0;
 const CELL_START = 1;
@@ -727,12 +727,16 @@ function clearPath() {
 
 
 
-// Add event listeners to buttons
-document.getElementById("runButton").addEventListener("click", function () {
-  runAlgorithm(algoName.value);
-});
+ const instructionsButton = document.getElementById("instructions");
+ const instructionsContent = document.getElementById("instructions-content");
+instructionsContent.style.display = "none";
 
+instructionsButton.addEventListener("click", () => {
+   instructionsContent.style.display =
+     instructionsContent.style.display === "none" ? "block" : "none";
+ });
 
+//document.getElementById("instrcutions").addEventListener("click",showInstructions);
 document.getElementById("resetPath").addEventListener("click", clearPath);
 document.getElementById("resetButton").addEventListener("click", resetGrid);
 document
