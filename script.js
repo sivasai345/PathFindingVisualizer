@@ -434,6 +434,104 @@ function performBiBFS(startCell, endCell) {
   }
 }
 
+
+function performDijkstra() {
+  // Create a priority queue to store nodes to visit, with initial distance as priority
+  const priorityQueue = new PriorityQueue((a, b) => a.distance - b.distance);
+
+  // Create an array to track the minimum distance to each cell from the start cell
+  const distance = new Array(ROWS)
+    .fill()
+    .map(() => new Array(COLS).fill(Number.MAX_VALUE));
+
+  // Create a 2D array to track the parent of each cell (for path reconstruction)
+  const parent = new Array(ROWS).fill().map(() => new Array(COLS));
+
+  // Define the possible directions to move in the grid (up, right, down, left)
+  const directions = [
+    [-1, 0], // Up
+    [0, 1], // Right
+    [1, 0], // Down
+    [0, -1], // Left
+  ];
+
+  // Get the coordinates of the start and end cells
+  const { row: startRow, col: startCol } = startCell;
+  const { row: endRow, col: endCol } = endCell;
+
+  // Initialize the distance to the start cell as 0 and enqueue it
+  distance[startRow][startCol] = 0;
+  priorityQueue.enqueue({ row: startRow, col: startCol, distance: 0 });
+
+  let isEndReached = false;
+
+  traverseNext();
+
+  async function traverseNext() {
+    while (!priorityQueue.isEmpty() && !isEndReached) {
+      const { row, col, distance: currentDistance } = priorityQueue.dequeue();
+
+      // If we have reached the end cell, reconstruct and visualize the shortest path
+      if (row === endRow && col === endCol) {
+        isEndReached = true;
+        visualizeShortestPath(parent);
+        return;
+      }
+
+      // Visit the neighbors of the current cell
+      for (const [dx, dy] of directions) {
+        const newRow = row + dx;
+        const newCol = col + dy;
+
+        // Check if the neighbor is within the grid boundaries and is not a wall
+        if (
+          newRow >= 0 &&
+          newRow < ROWS &&
+          newCol >= 0 &&
+          newCol < COLS &&
+          grid[newRow][newCol] !== CELL_WALL
+        ) {
+          const newDistance = currentDistance + 1;
+
+          // If the new distance is shorter than the current recorded distance, update it
+          if (newDistance < distance[newRow][newCol]) {
+            distance[newRow][newCol] = newDistance;
+            parent[newRow][newCol] = { row, col };
+
+            // Enqueue the neighbor with the new distance as priority
+            priorityQueue.enqueue({
+              row: newRow,
+              col: newCol,
+              distance: newDistance,
+            });
+
+            // Visualize the cell as visited
+            const cell = document.querySelector(
+              `.cell:nth-child(${newRow * COLS + newCol + 1})`
+            );
+            cell.classList.add("visited");
+
+            // Add a delay before traversing the next cell
+            await new Promise((resolve) => setTimeout(resolve, traverseDelay));
+          }
+        }
+      }
+    }
+
+    // If we reached here, it means there is no valid path from the start to the end
+    if (!isEndReached) {
+      alert("No path found.");
+    }
+  }
+}
+
+
+// function performDijkstra()
+// {
+
+//   //complete this function 
+// }
+
 function performAstar() {
   message.innerHTML = "A* algorithm ensures the shortest path using heuristics";
 
@@ -563,6 +661,7 @@ class PriorityQueue {
   }
 }
 
+
 // Visualize the shortest path from the start to the end cell
 function visualizeShortestPath(parent) {
   let row = endCell.row;
@@ -611,6 +710,9 @@ function runAlgorithm(algoName) {
     performAstar();
   } else if (algoName === "biBFS") {
     performBiBFS(startCell, endCell);
+  }
+    else if(algoName === "dijkstra"){
+    performDijkstra();
   }
 
   isRunning = false;
@@ -761,9 +863,11 @@ function btnNameChange() {
   else if (algoName.value == "astar")
     message.innerHTML =
       "A* algorithm ensures the shortest path using heuristics";
-  else if (algoName.value == "biBFS"){
+  else if (algoName.value == "dijkstra")
+    message.innerHTML =
+      "Dijkstra algorithm guarrantees the shortest path";
+  else if (algoName.value == "biBFS") {
     message.innerHTML = "Bidirectional BFS guarantees the shortest path";
-  
   }
 }
 
